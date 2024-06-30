@@ -59,8 +59,9 @@ public class  Principal {
                     break;
                 case 4: System.out.println("Ingrese el año: ");
                     int year = input.nextInt();
-                    //searchAuthorsByYear(year);
+                    searchAuthorsByYear(year);
                     break;
+
                 case 5:
                     System.out.println("Ingrese el idioma: ");
                     String language = input.nextLine();
@@ -74,6 +75,12 @@ public class  Principal {
                     break;
             }
         }
+    }
+
+    private void searchAuthorsByYear(int year) {
+        List<String> authors = authorRepository.findByBirthYear(year);
+        System.out.println("\nAutores registrados en el año " + year + ": \n");
+        authors.forEach(System.out::println);
     }
 
     private void searchAuthors() {

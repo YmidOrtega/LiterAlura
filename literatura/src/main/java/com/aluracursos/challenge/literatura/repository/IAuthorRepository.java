@@ -16,7 +16,7 @@ public interface IAuthorRepository extends JpaRepository<Author, Long> {
     @Query("SELECT a FROM Author a WHERE a.name = :name")
     Author findByName(String name);
 
-    @Query("SELECT a.id FROM Author a WHERE a.name = :name")
-    Long findIdByName(String name);
+    @Query("SELECT a.name FROM Author a WHERE a.birthYear = :year")
+    List<String> findByBirthYear(Integer year);
 
 }
