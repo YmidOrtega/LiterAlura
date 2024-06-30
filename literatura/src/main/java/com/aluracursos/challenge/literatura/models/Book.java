@@ -19,7 +19,7 @@ public class Book {
     @Column(unique = true)
     private String title;
 
-    @ManyToOne (cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne (cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     private Author author = new Author();
 
     @ElementCollection

@@ -11,7 +11,7 @@ public class Author {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = false)
+    @Column(unique = true)
     private String name;
 
     private Integer birthYear;

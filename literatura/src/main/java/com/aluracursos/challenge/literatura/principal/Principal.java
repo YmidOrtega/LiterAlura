@@ -1,6 +1,7 @@
 package com.aluracursos.challenge.literatura.principal;
 
 import com.aluracursos.challenge.literatura.models.*;
+import com.aluracursos.challenge.literatura.repository.IAuthorRepository;
 import com.aluracursos.challenge.literatura.repository.IBookRepository;
 import com.aluracursos.challenge.literatura.services.API;
 import com.aluracursos.challenge.literatura.services.Converter;
@@ -11,7 +12,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Scanner;
 
 public class  Principal {
@@ -19,15 +19,17 @@ public class  Principal {
     private final Scanner input = new Scanner(System.in);
     private final API api;
     private final String urlbase;
-    private final IBookRepository repository;
     private final Converter converter;
+    private final IBookRepository bookRepository;
+    private final IAuthorRepository authorRepository;
     private List<Book> history = new ArrayList<>();
 
-    public Principal(String urlbase, API api, Converter converter ,IBookRepository bookRepository) {
+    public Principal(String urlbase, API api, Converter converter , IBookRepository bookRepository, IAuthorRepository authorRepository) {
         this.urlbase = urlbase;
         this.api = api;
-        this.repository = bookRepository;
+        this.bookRepository = bookRepository;
         this.converter = converter;
+        this.authorRepository = authorRepository;
     }
 
 
@@ -53,7 +55,7 @@ public class  Principal {
                     break;
                 case 2: searchHistory();
                     break;
-                case 3: //searchAuthors();
+                case 3: searchAuthors();
                     break;
                 case 4: System.out.println("Ingrese el año: ");
                     int year = input.nextInt();
@@ -72,6 +74,12 @@ public class  Principal {
                     break;
             }
         }
+    }
+
+    private void searchAuthors() {
+        List<String> authors = authorRepository.autoresRegistrados();
+        System.out.println("\nAutores registrados: \n");
+        authors.forEach(System.out::println);
     }
 
     private DataBook apiRequest() {
@@ -104,20 +112,31 @@ public class  Principal {
             for (int i = 0; i < history.size(); i++) {
                 System.out.println(i + ". " + history.get(i).getTitle());
             }
-
         }
-
     }
 
     private void searchBook () {
         DataBook dataBook = apiRequest();
         Book book = new Book(dataBook);
-        book.setAuthor(new Author(new DataAuthor(dataBook.author().get(0).name(),
-                dataBook.author().get(0).birthYear(),
-                dataBook.author().get(0).deathYear())));
-        repository.save(book);
-        history.add(book);
-        System.out.println("\nLibro encontrado: " + book.getTitle() + "\n");
+        try {
+            Author author = authorRepository.findByName(dataBook.author().get(0).name());
+            if (author != null){
+                book.setAuthor(author);
+            }else {
+                Author author1 = new Author(new DataAuthor(
+                        dataBook.author().get(0).name(),
+                        dataBook.author().get(0).birthYear(),
+                        dataBook.author().get(0).deathYear()));
+                authorRepository.save(author1);
+                book.setAuthor(author1);
+            }
+            bookRepository.save(book);
+            history.add(book);
+            System.out.println("\nEl siguiente libro fue guardado con exito: " + book.getTitle() + "\n");
+
+        }catch (Exception e) {
+        System.out.println("\nEl libro ya se encuentra registrado\n");
+        }
     }
 }
 
